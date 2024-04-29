@@ -4,7 +4,6 @@
 #include "memio.h"
 #include "Kernel.h"
 
-
 void Kernel_start(void)
 {
 	Kernel_task_start();
@@ -95,4 +94,29 @@ void Kernel_lock_sem(void)
 void Kernel_unlock_sem(void)
 {
 	Kernel_sem_release();
+}
+
+void Kernel_lock_mutex(void)
+{
+	while(true)
+	{
+		uint32_t current_task_id = Kernel_task_get_current_task_id();
+		if (false == Kernel_mutex_lock(current_task_id))
+		{
+			Kernel_yield();
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+
+void Kernel_unlock_mutex(void)
+{
+	uint32_t current_task_id = Kernel_task_get_current_task_id();
+	if (false == Kernel_mutex_unlock(current_task_id))
+	{
+		Kernel_yield();
+	}
 }

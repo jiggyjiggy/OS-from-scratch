@@ -2,7 +2,6 @@
 #include "stdbool.h"
 
 #include "ARMv7AR.h"
-#include "armcpu.h"
 #include "task.h"
 
 static KernelTcb_t  sTask_list[MAX_TASK_NUM];
@@ -53,14 +52,17 @@ uint32_t Kernel_task_create(KernelTaskFunc_t startFunc)
 	return (sAllocated_tcb_index - 1);
 }
 
+uint32_t Kernel_task_get_current_task_id(void)
+{
+	return sCurrent_tcb_index;
+}
+
 void Kernel_task_scheduler(void)
 {
 	sCurrent_tcb = &sTask_list[sCurrent_tcb_index];
 	sNext_tcb = Scheduler_round_robin_algorithm();
 
-	disable_irq();
 	Kernel_task_context_switching();
-	enable_irq();
 }
 
 __attribute__ ((naked)) void Kernel_task_context_switching(void)
